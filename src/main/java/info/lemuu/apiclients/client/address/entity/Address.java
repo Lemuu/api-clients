@@ -1,6 +1,6 @@
 package info.lemuu.apiclients.client.address.entity;
 
-import info.lemuu.apiclients.model.IModel;
+import info.lemuu.apiclients.entity.IEntity;
 import info.lemuu.apiclients.validation.contraints.CEP;
 import lombok.Data;
 import org.springframework.lang.Nullable;
@@ -18,7 +18,7 @@ import javax.validation.constraints.NotBlank;
  */
 @Data
 @Entity(name = "clients_address")
-public class Address implements IModel {
+public class Address implements IEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,7 +42,7 @@ public class Address implements IModel {
     private String CEP;
 
     @Override
-    public Address update(IModel newModelData) {
+    public Address update(IEntity newModelData) {
         var address = (Address) newModelData;
 
         this.setStreet(address.getStreet());

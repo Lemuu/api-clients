@@ -1,7 +1,7 @@
 package info.lemuu.apiclients.client.entity;
 
 import info.lemuu.apiclients.client.address.entity.Address;
-import info.lemuu.apiclients.model.IModel;
+import info.lemuu.apiclients.entity.IEntity;
 import info.lemuu.apiclients.validation.contraints.RG;
 import lombok.Data;
 import org.hibernate.validator.constraints.br.CPF;
@@ -17,7 +17,7 @@ import javax.validation.constraints.Pattern;
  */
 @Data
 @Entity(name = "clients")
-public class Client implements IModel {
+public class Client implements IEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,7 +51,7 @@ public class Client implements IModel {
     private Address address;
 
     @Override
-    public Client update(IModel newModelData) {
+    public Client update(IEntity newModelData) {
         var client = (Client) newModelData;
 
         this.setName(client.getName());
