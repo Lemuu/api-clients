@@ -1,6 +1,6 @@
-package info.lemuu.apiclients.client.model;
+package info.lemuu.apiclients.client.entity;
 
-import info.lemuu.apiclients.client.address.model.Address;
+import info.lemuu.apiclients.client.address.entity.Address;
 import info.lemuu.apiclients.model.IModel;
 import info.lemuu.apiclients.validation.contraints.RG;
 import lombok.Data;
@@ -9,6 +9,7 @@ import org.hibernate.validator.constraints.br.CPF;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 /**
@@ -22,24 +23,28 @@ public class Client implements IModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @NotBlank(message = "Can't use name in black.")
+    @NotBlank(message = "Can't use name in blank.")
     @Pattern(regexp = "^[A-Z]+(.)*", message = "Name need start with the first letter uppercase")
     @Column(nullable = false)
     private String name;
 
     @Email(message = "Email invalid!")
-    @NotBlank(message = "Can't use email in black.")
+    @NotBlank(message = "Can't use email in blank.")
     private String email;
 
     @RG
-    @NotBlank(message = "Can't use RG in black.")
+    @NotBlank(message = "Can't use RG in blank.")
     @Column(unique = true, nullable = false)
     private String RG;
 
     @CPF(message = "CPF invalid!")
-    @NotBlank(message = "Can't use CPF in black.")
+    @NotBlank(message = "Can't use CPF in blank.")
     @Column(unique = true, nullable = false)
     private String CPF;
+
+    @NotNull(message = "Date can't be null.")
+    @Pattern(regexp = "^\\d{4}/\\d{2}/\\d{2}$", message = "The birthday is invalid!")
+    private String birthday;
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "address_id", nullable = false)

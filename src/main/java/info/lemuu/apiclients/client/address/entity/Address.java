@@ -1,4 +1,4 @@
-package info.lemuu.apiclients.client.address.model;
+package info.lemuu.apiclients.client.address.entity;
 
 import info.lemuu.apiclients.model.IModel;
 import info.lemuu.apiclients.validation.contraints.CEP;

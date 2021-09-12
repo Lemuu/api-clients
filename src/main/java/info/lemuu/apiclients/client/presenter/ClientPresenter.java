@@ -1,9 +1,15 @@
 package info.lemuu.apiclients.client.presenter;
 
-import info.lemuu.apiclients.client.model.Client;
+import info.lemuu.apiclients.client.dto.ClientDTO;
+import info.lemuu.apiclients.client.entity.Client;
 import info.lemuu.apiclients.client.repository.ClientRepository;
 import info.lemuu.apiclients.presenters.IPresenter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,25 +20,33 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * @author Lemuel Brenner
  */
 @RestController
 @RequestMapping("/api/client")
-public class ClientPresenter implements IPresenter<Client> {
+public class ClientPresenter implements IPresenter<Client, ClientDTO> {
 
     @Autowired
     private ClientRepository clientRepository;
 
     @Override
     @GetMapping
-    public List<ResponseEntity<Client>> index(HttpServletRequest request) {
-        if (Objects.isNull(request.getQueryString())) {
-            return List.of(ResponseEntity.noContent().build());
-        }
+    public ResponseEntity<Page<ClientDTO>> index(@PageableDefault(size = 5) Pageable pageable) {
+        List<ClientDTO> clients = ClientDTO.convert(this.clientRepository.findAll(pageable).toList());
+        return new ResponseEntity<>(
+                new PageImpl<>(clients, pageable, clients.size()),
+                HttpStatus.OK
+        );
+    }
 
+    @Override
+    @GetMapping("/search")
+    public ResponseEntity<List<ClientDTO>> show(HttpServletRequest request) {
+        if (Objects.isNull(request.getQueryString())) {
+            return ResponseEntity.noContent().build();
+        }
         var params = request.getQueryString().split("&");
 
         var clients = new ArrayList<Client>();
@@ -43,25 +57,22 @@ public class ClientPresenter implements IPresenter<Client> {
 
             switch (key) {
                 case "email":
-                    this.clientRepository.findByEmail(value).ifPresent(clients::add);
+                    this.clientRepository.findAllByEmail(value).stream().distinct().forEach(clients::add);
                 case "rg":
-                    this.clientRepository.findByRG(value).ifPresent(clients::add);
+                    this.clientRepository.findByRG(value).stream().distinct().forEach(clients::add);
                 case "cpf":
-                    this.clientRepository.findByCPF(value).ifPresent(clients::add);
+                    this.clientRepository.findByCPF(value).stream().distinct().forEach(clients::add);
             }
         }
 
-        return clients.stream()
-                .map(ResponseEntity::ok)
-                .distinct()
-                .collect(Collectors.toList());
+        return ResponseEntity.ok(ClientDTO.convert(clients));
     }
 
     @Override
     @GetMapping("/{id}")
-    public ResponseEntity<Client> show(@PathVariable Long id) {
+    public ResponseEntity<ClientDTO> show(@PathVariable Long id) {
         return this.clientRepository.findById(id)
-                .map(ResponseEntity::ok)
+                .map(client -> ResponseEntity.ok(new ClientDTO(client)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
@@ -70,7 +81,6 @@ public class ClientPresenter implements IPresenter<Client> {
     @Transactional
     public ResponseEntity<Client> store(@RequestBody @Valid Client newClient) {
         Client client = this.clientRepository.save(newClient);
-
 
 
         return ResponseEntity.ok(client);

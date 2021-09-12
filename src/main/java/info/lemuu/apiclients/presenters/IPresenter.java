@@ -1,6 +1,8 @@
 package info.lemuu.apiclients.presenters;
 
 import info.lemuu.apiclients.model.IModel;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
 import javax.servlet.http.HttpServletRequest;
@@ -9,11 +11,13 @@ import java.util.List;
 /**
  * @author Lemuel Brenner
  */
-public interface IPresenter<T extends IModel> {
+public interface IPresenter<T extends IModel, R> {
 
-    List<ResponseEntity<T>> index(HttpServletRequest request);
+    ResponseEntity<Page<R>> index( Pageable pageable);
 
-    ResponseEntity<T> show(Long id);
+    ResponseEntity<List<R>> show(HttpServletRequest request);
+
+    ResponseEntity<R> show(Long id);
 
     ResponseEntity<T> store(T client);
 
